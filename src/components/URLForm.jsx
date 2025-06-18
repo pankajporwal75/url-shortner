@@ -4,7 +4,7 @@ const BACKEND_HOST = import.meta.env.VITE_BACKEND_URL;
 const URLForm = () => {
   const [url, setUrl] = useState("");
   const [error, setError] = useState("");
-  const [shortUrl, setShortUrl] = useState("");
+  const [createdUrl, setCreatedUrl] = useState(null);
 
   const isValidUrl = (str) => {
     try {
@@ -18,7 +18,7 @@ const URLForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    setShortUrl("");
+    setCreatedUrl(null);
 
     if (!isValidUrl(url)) {
       setError("Full url is not a valid url");
@@ -35,7 +35,10 @@ const URLForm = () => {
       const data = await response.json();
       if (response.ok) {
         const short_url = `${BACKEND_HOST}/${data.short_code}`
-        setShortUrl(short_url);
+        setCreatedUrl({
+          full_url: data.full_url,
+          short_url,
+        });
         setUrl("");
       } else {
         const message =
@@ -69,11 +72,33 @@ const URLForm = () => {
       </form>
 
       {error && <p className="text-red-600 mt-2">{error}</p>}
-      {shortUrl && (
+      {createdUrl && (
         <div className="mt-4 p-3 bg-green-100 border border-green-300 rounded">
-          Shortened URL: <a href={shortUrl} target="blank" className="text-blue-700">{shortUrl}</a>
+          <p>
+            Full URL:{" "}
+            <a
+              href={createdUrl.full_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-700 underline"
+            >
+              {createdUrl.full_url}
+            </a>
+          </p>
+          <p>
+            Shortened URL:{" "}
+            <a
+              href={createdUrl.short_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-indigo-700 underline"
+            >
+              {createdUrl.short_url}
+            </a>
+          </p>
         </div>
       )}
+
     </div>
   );
 };
